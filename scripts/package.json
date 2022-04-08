@@ -1,0 +1,9 @@
+{
+  "name": "yedao-scripts",
+  "type": "module",
+  "dependencies": {
+    "@thirdweb-dev/sdk": "^2.0.26",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.6.2"
+  }
+}
