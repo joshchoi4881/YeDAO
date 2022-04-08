@@ -43,9 +43,9 @@ const App = () => {
   const address = useAddress();
   const network = useNetwork();
   const connectMetamask = useMetamask();
-  const EDITION_DROP = useEditionDrop(REACT_APP_THIRDWEB_EDITION_DROP_ADDRESS);
-  const TOKEN = useToken(REACT_APP_THIRDWEB_TOKEN_ADDRESS);
-  const VOTE = useVote(REACT_APP_THIRDWEB_VOTE_ADDRESS);
+  const editionDrop = useEditionDrop(REACT_APP_THIRDWEB_EDITION_DROP_ADDRESS);
+  const token = useToken(REACT_APP_THIRDWEB_TOKEN_ADDRESS);
+  const vote = useVote(REACT_APP_THIRDWEB_VOTE_ADDRESS);
 
   useEffect(() => {
     if (address) {
@@ -67,7 +67,7 @@ const App = () => {
 
   const checkMembership = async () => {
     try {
-      const balance = await EDITION_DROP.balanceOf(address, 0);
+      const balance = await editionDrop.balanceOf(address, 0);
       if (balance.gt(0)) {
         setIsMember(true);
         return;
@@ -80,11 +80,11 @@ const App = () => {
 
   const accessDAO = async () => {
     try {
-      const addresses = await EDITION_DROP.history.getAllClaimerAddresses(0);
+      const addresses = await editionDrop.history.getAllClaimerAddresses(0);
       setMemberAddresses(addresses);
-      const balances = await TOKEN.history.getAllHolderBalances();
+      const balances = await token.history.getAllHolderBalances();
       setMemberBalances(balances);
-      const proposals = await VOTE.getAll();
+      const proposals = await vote.getAll();
       setProposals(proposals);
     } catch (error) {
       console.error(error);
@@ -93,7 +93,7 @@ const App = () => {
 
   const checkVotes = async () => {
     try {
-      const hasVoted = await VOTE.hasVoted(proposals[0].proposalId);
+      const hasVoted = await vote.hasVoted(proposals[0].proposalId);
       setHasVoted(hasVoted);
     } catch (error) {
       console.error(error);
@@ -103,9 +103,9 @@ const App = () => {
   const mint = async () => {
     try {
       setIsMinting(true);
-      await EDITION_DROP.claim("0", 1);
+      await editionDrop.claim("0", 1);
       alert(
-        `OpenSea: https://testnets.opensea.io/assets/${EDITION_DROP.getAddress()}/0`
+        `OpenSea: https://testnets.opensea.io/assets/${editionDrop.getAddress()}/0`
       );
       isMember(true);
     } catch (error) {
@@ -200,16 +200,16 @@ const App = () => {
                     return result;
                   });
                   try {
-                    const delegation = await TOKEN.getDelegationOf(address);
+                    const delegation = await token.getDelegationOf(address);
                     if (delegation === AddressZero) {
-                      await TOKEN.delegateTo(address);
+                      await token.delegateTo(address);
                     }
                     try {
                       await Promise.all(
                         votes.map(async ({ proposalId, vote: _vote }) => {
-                          const proposal = await VOTE.get(proposalId);
+                          const proposal = await vote.get(proposalId);
                           if (proposal.state === 1) {
-                            return VOTE.vote(proposalId, _vote);
+                            return vote.vote(proposalId, _vote);
                           }
                           return;
                         })
@@ -217,9 +217,9 @@ const App = () => {
                       try {
                         await Promise.all(
                           votes.map(async ({ proposalId }) => {
-                            const proposal = await VOTE.get(proposalId);
+                            const proposal = await vote.get(proposalId);
                             if (proposal.state === 4) {
-                              return VOTE.execute(proposalId);
+                              return vote.execute(proposalId);
                             }
                           })
                         );
